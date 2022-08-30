@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 // import TaskItems from "./TaskItems";
 // import { TrashIcon } from "@heroicons/react/outline"
-import TaskItem from "../components/TaskItems";
+import TaskItem from "../components/TaskItem";
 import { v4 as uuid } from "uuid";
 import { useTaskContext } from "../context/taskContext";
 
@@ -19,19 +19,42 @@ function TaskManager() {
     e.preventDefault();
     if (input === "") return;
 
-    const newTasks = {
+    const newTask = {
       id: uuid(),
       text: input,
-      completed: true,
+      completed: false,
     };
 
-    setValue([newTasks, ...tasks]);
+    setValue([newTask, ...tasks]);
     setInput("");
   };
   const handleDelete = (id) => {
     const newTasks = tasks.filter((task) => task.id !== id);
     setValue(newTasks);
   };
+
+  const handleCompleted = (id) => {
+    const newTasks = tasks.map((task) => {
+      if (task.id === id) {
+        return {
+          ... task,
+          completed: !task.completed,
+        }
+      }
+      return task;
+    });
+    setValue([newTasks])
+  }
+
+const handleEdit = (id) => {
+  const newTasks = tasks.filter((task) =>{
+    if (task.id === id){
+      setInput(task.text);
+      return false;
+    }
+    setValue(newTasks)
+  })
+};
 
   useEffect(() => {
     localStorage.setItem("tasks", JSON.stringify(tasks));
@@ -59,7 +82,10 @@ function TaskManager() {
         <div className="space-y-2 overflow-y-auto h-56">
           {tasks.map((task) => {
             return (
-              <TaskItem key={task.id} task={task} handleDelete={handleDelete} />
+              <TaskItem key={task.id} task={task} handleDelete={handleDelete} 
+              handleCompleted ={handleCompleted}
+              handleEdit ={handleEdit}
+              />
             );
           })}
           {/* <TaskItems/>
